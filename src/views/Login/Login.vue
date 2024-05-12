@@ -8,7 +8,7 @@
       <input
         class="wrapper__input__content"
         placeholder="请输入用户名"
-        v-model="data.username"
+        v-model="username"
       />
     </div>
     <div class="wrapper__input">
@@ -16,7 +16,8 @@
         class="wrapper__input__content"
         placeholder="请输入密码"
         type="password"
-        v-model="data.password"
+        v-model="password"
+        autocomplete="new-password"
       />
     </div>
     <div
@@ -27,29 +28,31 @@
       class="wrapper__login-link"
       @click="handleRegisterClick"
     >立即注册</div>
+    <Toast
+      v-if="show"
+      :message="toastMessage"
+    />
   </div>
 </template>
 
 <script>
+import { reactive, toRefs } from "vue";
 import { useRouter } from "vue-router";
 import { post } from "../../utils/request";
-// import axios from "axios";
-import { reactive } from "vue";
+import axios from "axios";
+
+import Toast, { useToastEffect } from "../../components/Toast";
 // axios.defaults.headers.post["Content-Type"] = "application/json";
 
-export default {
-  name: "Login",
-  setup() {
-    const data = reactive({
-      username: "",
-      password: ""
-    });
-    const router = useRouter();
-    const handleLogin = async () => {
+//处理注册逻辑
+const useLoginEffect = showToast => {
+  const router = useRouter();
+  const data = reactive({ username: "", password: "" });
+  /* const handleLogin = async () => {
       try {
         const data = await post("/api/user/login", {
           username: data.username,
-          password: data.password
+          password: data.password,
         });
         if (data?.errno === 0) {
           localStorage.isLogin = true;
@@ -60,19 +63,65 @@ export default {
       } catch (e) {
         alert("请求失败");
       }
-      /* const result = await axios
-        .post(
-          "https://www.fastmock.site/mock/ae8e9031947a302fed5f92425995aa19/jd/api/user/login",
-          {
-            username: data.username,
-            password: data.password
-          }
-        ) */
+      // const result = await axios
+      //   .post(
+      //     "https://www.fastmock.site/mock/ae8e9031947a302fed5f92425995aa19/jd/api/user/login",
+      //     {
+      //       username: data.username,
+      //       password: data.password
+      //     }
+      //   )
+    }; */
+  const handleLogin = async () => {
+    axios
+      .get("/api/login")
+      .then(res => {
+        let { data } = res.data;
+        if (data?.errno === 0) {
+          localStorage.isLogin = true;
+          router.push({ name: "Home" });
+        } else {
+          showToast("登录失败"); //方法
+        }
+      })
+      .catch(err => {
+        showToast("请求失败");
+      });
+  };
+  const { username, password } = toRefs(data);
+  return { username, password, handleLogin };
+};
+
+//处理注册的逻辑
+const useRegisterEffect = () => {
+  const router = useRouter();
+  const handleRegisterClick = () => {
+    router.push({ name: "Register" });
+  };
+  return {
+    handleRegisterClick
+  };
+};
+
+export default {
+  name: "Login",
+  components: {
+    Toast
+  },
+  //职责就是告诉你，代码执行的一个流程
+  setup() {
+    const { show, toastMessage, showToast } = useToastEffect(); //Toast逻辑
+    const { username, password, handleLogin } = useLoginEffect(showToast);
+    const { handleRegisterClick } = useRegisterEffect();
+
+    return {
+      username,
+      password,
+      show,
+      toastMessage,
+      handleLogin,
+      handleRegisterClick
     };
-    const handleRegisterClick = () => {
-      router.push({ name: "Register" });
-    };
-    return { handleLogin, handleRegisterClick, data };
   }
 };
 </script>

@@ -2,14 +2,19 @@ const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
   transpileDependencies: true,
   lintOnSave: false, //关闭eslint
+
+  // express 项目默认在 3000 端口启动，所以视图层的 vue 框架中需要设置跨域 
   devServer: {
+    host: 'localhost',
+    port: 8000,
     proxy: {
       '/api': {
-        //target 我们要连接的后端地址
         target: 'http://localhost:3000',
-        changeOrigin: true, //是否跨域
-        pathRewrite: { '^/api': '' }
-      },
+        changeOrigin: true,
+        pathRewrite: {
+          "/api": ""
+        }
+      }
     },
   },
 })

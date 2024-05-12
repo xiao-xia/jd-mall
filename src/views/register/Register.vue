@@ -7,7 +7,8 @@
     <div class="wrapper__input">
       <input
         class="wrapper__input__content"
-        placeholder="请输入手机号"
+        placeholder="请输入用户名"
+        v-model="username"
       />
     </div>
     <div class="wrapper__input">
@@ -15,6 +16,8 @@
         class="wrapper__input__content"
         placeholder="请输入密码"
         type="password"
+        autocomplete="new-password"
+        v-model="password"
       />
     </div>
     <div class="wrapper__input">
@@ -22,27 +25,88 @@
         class="wrapper__input__content"
         placeholder="确认密码"
         type="password"
+        v-model="ensurement"
       />
     </div>
-    <div class="wrapper__register-button">注册</div>
+    <div
+      class="wrapper__register-button"
+      @click="handleRehister"
+    >注册</div>
     <div
       class="wrapper__register-link"
       @click="hangleLoginCilck"
     >已有注册去登录</div>
+    <Toast
+      v-if="show"
+      :message="toastMessage"
+    />
   </div>
+
 </template>
 
 <script>
 import { useRouter } from "vue-router";
+import { reactive, toRefs } from "vue";
+import Toast, { useToastEffect } from "../../components/Toast";
+import axios from "axios";
+//处理注册相关逻辑
+const useRegisterEffect = showToast => {
+  const router = useRouter();
+  const data = reactive({ username: "", password: "", ensurement: "" });
+  const handleRehister = async () => {
+    axios
+      .post("/api/login/register")
+      .then(res => {
+        let { data } = res.data;
+        if (data?.errno === 0) {
+          localStorage.isLogin = true;
+          router.push({ name: "Login" });
+        } else {
+          showToast("注册失败"); //方法
+        }
+      })
+      .catch(err => {
+        showToast("请求失败");
+      });
+  };
+  const { username, password, ensurement } = toRefs(data);
+  return { username, password, ensurement, handleRehister };
+};
+
+//处理登录跳转
+const useLoginEffect = () => {
+  const router = useRouter();
+  const hangleLoginCilck = () => {
+    router.push({ name: "Login" });
+  };
+  return {
+    hangleLoginCilck
+  };
+};
+
 export default {
   name: "Login",
+  component: {
+    Toast
+  },
+  //职责就是告诉你，代码执行的一个流程
   setup() {
-    const router = useRouter();
-    const hangleLoginCilck = () => {
-      router.push({ name: "Login" });
-    };
+    const { show, toastMessage, showToast } = useToastEffect(); //Toast逻辑
+    const {
+      username,
+      password,
+      ensurement,
+      handleRehister
+    } = useRegisterEffect(showToast);
+    const { hangleLoginCilck } = useLoginEffect();
     return {
-      hangleLoginCilck
+      username,
+      password,
+      ensurement,
+      handleRehister,
+      hangleLoginCilck,
+      show,
+      toastMessage
     };
   }
 };
