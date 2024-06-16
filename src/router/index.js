@@ -1,18 +1,24 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import Home from '../views/home/Home'
-import Register from '../views/register/Register'
-import Login from '../views/Login/Login'
+// import Home from '../views/home/Home'
+// import Shop from '../views/shop/Shop'
+// import Register from '../views/register/Register'
+// import Login from '../views/Login/Login'
 
 //筛选展示的组件
 const routes = [
   {
     path: '/',
     name: 'Home',
-    component: Home
+    component: () => import(/* webpackChunkName: "Home" */ '../views/home/Home.vue')
+  }, {
+    path: '/shop',
+    name: 'Shop',
+    component: () => import(/* webpackChunkName: "Shop" */ '../views/shop/Shop.vue')
   }, {
     path: '/Register',
     name: 'Register',
-    component: Register,
+    // component: Register,
+    component: () => import(/* webpackChunkName: "Register" */ '../views/register/Register.vue'),
     beforeEnter(to, from, next) {
       //如果已经登录，再访问/login页面，不让你访问了
       const { isLogin } = localStorage;
@@ -22,7 +28,8 @@ const routes = [
   {
     path: '/Login',
     name: 'Login',
-    component: Login,
+    // component: Login,
+    component: () => import(/* webpackChunkName: "Login" */ '../views/Login/Login.vue'),
     beforeEnter(to, from, next) {
       const { isLogin } = localStorage;
       isLogin ? next({ name: 'Home' }) : next()
