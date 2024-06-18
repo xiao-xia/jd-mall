@@ -1,52 +1,89 @@
 <template>
   <div class="wrapper">
     <div class="search">
-      <div class="search__back"></div>
+      <div class="search__back iconfont" @click="handleBackClick">&#xe697;</div>
       <div class="search__content">
-        <span class="search__content__icon"></span>
-        <span class="search__content__input"></span>
+        <span class="search__content__icon iconfont">&#xe6c5;</span>
+        <input class="search__content__input" placeholder="请输入商品名称" />
       </div>
     </div>
-    <ShopInfo :item="item" :hideBorder="true" />
+    <ShopInfo :item="shopData.item" :hideBorder="true" />
   </div>
 </template>
 
 <script>
+import { reactive } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import ShopInfo from "../../components/ShopInfo";
+import axios from "axios";
 export default {
   components: { ShopInfo },
+
   setup() {
-    const item = {
-      _id: "1",
-      name: "沃尔玛",
-      imgUrl: "http://www.dell-lee.com/imgs/vue3/near.png",
-      sales: 10000,
-      expressLimit: 0,
-      expressPrice: 5,
-      slogan: "VIP尊享满89元减4元运费券",
+    const router = useRouter();
+    const shopData = reactive({ item: {} });
+    const getItemData = async () => {
+      // const result = await get("/api/shop/1");
+      axios
+        .get("/api/shop/shop/id")
+        .then((result) => {
+          let { data } = result.data;
+          if (result.data?.errno === 0 && result.data?.data) {
+            shopData.item = data;
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     };
-    return { item };
+    getItemData();
+
+    const handleBackClick = () => {
+      router.back();
+    };
+    return { shopData, handleBackClick };
   },
 };
 </script>
 
 <style lang="scss" scoped>
+@import "../../style/viriables.scss";
 .wrapper {
   padding: 0 0.18rem;
 }
 .search {
-  height: 0.32rem;
-  margin: 0.2rem 0 0.16rem 0;
+  display: flex;
+  margin: 0.14rem 0 0.04rem 0;
+  line-height: 0.32rem;
   &__back {
-    width: 0.32rem;
-    height: 0.3rem;
-    background: #000;
+    width: 0.3rem;
+    font-size: 0.24rem;
+    color: $search-fontColor;
   }
   &__content {
+    display: flex;
     flex: 1;
-    line-height: 0.32rem;
     background: #f5f5f5;
     border-radius: 0.16rem;
+    &__icon {
+      width: 0.44rem;
+      text-align: center;
+      color: $search-fontColor;
+    }
+    &__input {
+      display: block;
+      width: 100%;
+      padding-right: 0.2rem;
+      border: none;
+      outline: none;
+      background: none;
+      height: 0.32rem;
+      font-size: 0.14rem;
+      color: $content-fontcolor;
+      &::placeholder {
+        color: $content-fontcolor;
+      }
+    }
   }
 }
 </style>

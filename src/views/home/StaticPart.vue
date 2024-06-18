@@ -16,18 +16,13 @@
       />
     </div>
     <div class="icons">
-      <div
-        class="icons__item"
-        v-for="item in iconsList"
-        :key="item.desc"
-      >
+      <div class="icons__item" v-for="item in iconsList" :key="item.desc">
         <img
           class="icons__item__img"
           :src="`http://www.dell-lee.com/imgs/vue3/${item.imgName}.png`"
         />
-        <p class="icons__item__desc">{{item.desc}}</p>
+        <p class="icons__item__desc">{{ item.desc }}</p>
       </div>
-
     </div>
     <div class="gap"></div>
   </div>
@@ -47,12 +42,12 @@ export default {
       { imgName: "蛋糕", desc: "烘培蛋糕" },
       { imgName: "签到", desc: "签到" },
       { imgName: "大牌免运", desc: "大牌免运" },
-      { imgName: "红包", desc: "红包套餐" }
+      { imgName: "红包", desc: "红包套餐" },
     ];
     return {
-      iconsList
+      iconsList,
     };
-  }
+  },
 };
 </script>
 
@@ -81,8 +76,8 @@ export default {
 .search {
   margin-bottom: 0.12rem;
   line-height: 0.32rem;
-  background: #f5f5f5;
-  color: #b7b7b7;
+  background: $search-bgColor;
+  color: $search-fontColor;
   border-radius: 0.16rem;
 
   .iconfont {
