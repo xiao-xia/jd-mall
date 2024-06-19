@@ -7,41 +7,57 @@
         <input class="search__content__input" placeholder="请输入商品名称" />
       </div>
     </div>
-    <ShopInfo :item="shopData.item" :hideBorder="true" />
+    <ShopInfo :item="item" :hideBorder="true" v-show="item.imgUrl" />
+    <Content />
   </div>
 </template>
 
 <script>
-import { reactive } from "vue";
+import { reactive, toRefs } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import ShopInfo from "../../components/ShopInfo";
 import axios from "axios";
+import Content from "./Content.vue";
+
+//获取当前商铺信息
+const useShopInfoEffect = () => {
+  const route = useRoute();
+  console.log(route.params.id);
+  const shopData = reactive({ item: {} });
+  const getItemData = async () => {
+    // const result = await get("/api/shop/1");
+    axios
+      .get("/api/shop/shop/id")
+      .then((result) => {
+        let { data } = result.data;
+        if (result.data?.errno === 0 && result.data?.data) {
+          shopData.item = data;
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+  const { item } = toRefs(shopData);
+  return { item, getItemData };
+};
+
+//点击后退逻辑
+const useBackROuterEffect = () => {
+  const router = useRouter();
+  const handleBackClick = () => {
+    router.back();
+  };
+  return handleBackClick;
+};
+
 export default {
-  components: { ShopInfo },
-
+  components: { ShopInfo, Content },
   setup() {
-    const router = useRouter();
-    const shopData = reactive({ item: {} });
-    const getItemData = async () => {
-      // const result = await get("/api/shop/1");
-      axios
-        .get("/api/shop/shop/id")
-        .then((result) => {
-          let { data } = result.data;
-          if (result.data?.errno === 0 && result.data?.data) {
-            shopData.item = data;
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    };
+    const { item, getItemData } = useShopInfoEffect();
+    const handleBackClick = useBackROuterEffect();
     getItemData();
-
-    const handleBackClick = () => {
-      router.back();
-    };
-    return { shopData, handleBackClick };
+    return { item, handleBackClick };
   },
 };
 </script>
